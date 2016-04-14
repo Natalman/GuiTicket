@@ -28,21 +28,31 @@ public class GuiTicket extends JFrame {
     private JLabel DeleteLabel;
     private JLabel selectionLabel;
     private JButton QuitButton;
+    private JList ResolvedList;
+    private JLabel NonLabel;
     private Date ReportedDate;
 
-    ArrayList<String> ResolvedTic = new ArrayList<String>();
+    ArrayList<String> ResolvedTic = new ArrayList<String>(); // array list that will save resoved ticket
 
 
-    private static int staticTicketIDCounter = 1;
+    private static int staticTicketIDCounter = 1; // Counter for the ticket ID
 
     private DefaultListModel<String> listModel;
+    private DefaultListModel<String> listModel2;
+
+
+    // Setting up the GUI
 
     protected GuiTicket() throws IOException{
         setContentPane(rootPanel);
         setPreferredSize(new Dimension(500, 500));
 
-        listModel = new DefaultListModel<String>();
+        listModel = new DefaultListModel<String>();   //Initializing the Jlist of current ticket
         SubmitList.setModel(listModel);
+
+        listModel2 = new DefaultListModel<String>();   //Initializing the Jlist of resolved ticket
+        ResolvedList.setModel(listModel2);
+
 
         ConfigurPriority();
 
@@ -51,7 +61,7 @@ public class GuiTicket extends JFrame {
         setVisible(true);
 
 
-        AddTicketButton.addActionListener(new ActionListener() {
+        AddTicketButton.addActionListener(new ActionListener() {   // This will help us to add our component to the current ticket list
             @Override
             public void actionPerformed(ActionEvent e) {
                 String description = ProblemTextField.getText();
@@ -59,7 +69,7 @@ public class GuiTicket extends JFrame {
 
                 String consulter = ConsuterTextField.getText();
 
-                ReportedDate = new Date();
+                ReportedDate = new Date();                    // Initializing date
                 int TicketID = staticTicketIDCounter++;
 
                 consulter = consulter.trim();
@@ -69,6 +79,9 @@ public class GuiTicket extends JFrame {
                 if (description.length() == 0 || consulter.length() == 0){
                     return;
                 }
+
+
+                // Adding components to the current list of ticket
 
                 listModel.addElement( "TicketID: " + TicketID + "; Problem: " + description + "; Reporter: " + consulter + "; Priority: "
                         + Priority + "; Reported Date: " + ReportedDate);
@@ -82,15 +95,22 @@ public class GuiTicket extends JFrame {
         });
 
 
+
+        //Deleting ticket from the current list, adding them to the resolved list, and to a text file
         deleteTciketButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int selectedIndex = SubmitList.getSelectedIndex();
                 if (selectedIndex != 1){
-                    String delectedTicket = listModel.remove(selectedIndex);
+                    String delectedTicket = listModel.remove(selectedIndex); //Deleting ticket
+
+                    listModel2.addElement(listModel.remove(selectedIndex)); //Adding ticket to the resolved list
+
 
                     ResolvedTic.add("Resolved Ticket: " + delectedTicket);
 
+
+                    //Adding deleting ticket to a text file
                     try {
                         FileWriter resolved = new FileWriter("Resolvedticket.txt");
                         BufferedWriter ResolvedOnes = new BufferedWriter(resolved);
@@ -106,6 +126,8 @@ public class GuiTicket extends JFrame {
                 }
             }
         });
+
+        //Quiting the program and saving current ticket to a txt file
         QuitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -126,6 +148,8 @@ public class GuiTicket extends JFrame {
         });
 
     }
+
+    // Creating a priority selecting box that helps the user to select the priority of the ticket.
     private void ConfigurPriority(){
         for (int x = 1; x <= 5; x++){
             if (x==1){
